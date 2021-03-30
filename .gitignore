@@ -114,3 +114,5 @@ venv.bak/
 
 # Mac finder
 .DS_Store
+
+.idea/

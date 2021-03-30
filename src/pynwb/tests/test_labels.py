@@ -8,7 +8,7 @@ from pynwb.ecephys import ElectrodeGroup
 from pynwb.file import ElectrodeTable as get_electrode_table
 from pynwb.testing import TestCase, remove_test_file, AcquisitionH5IOMixin
 
-from ndx_labels import TetrodeSeries
+from ndx_labels import LabelSeries, RepresentationSeries
 
 
 def set_up_nwbfile():
@@ -17,102 +17,94 @@ def set_up_nwbfile():
         identifier='identifier',
         session_start_time=datetime.datetime.now(datetime.timezone.utc)
     )
-
-    device = nwbfile.create_device(
-        name='device_name'
-    )
-
-    electrode_group = nwbfile.create_electrode_group(
-        name='electrode_group',
-        description='description',
-        location='location',
-        device=device
-    )
-
-    for i in np.arange(10.):
-        nwbfile.add_electrode(
-            x=i,
-            y=i,
-            z=i,
-            imp=np.nan,
-            location='location',
-            filtering='filtering',
-            group=electrode_group
-        )
-
     return nwbfile
 
 
-class TestTetrodeSeriesConstructor(TestCase):
+# class TestLabelSeriesConstructor(TestCase):
+#
+#     def setUp(self):
+#         """Set up an NWB file. Necessary because TetrodeSeries requires references to electrodes."""
+#         self.nwbfile = set_up_nwbfile()
+#
+#     def test_constructor(self):
+#         """Test that the constructor for TetrodeSeries sets values as expected."""
+#         all_electrodes = self.nwbfile.create_electrode_table_region(
+#             region=list(range(0, 10)),
+#             description='all the electrodes'
+#         )
+#
+#         data = np.random.rand(100, 3)
+#         tetrode_series = TetrodeSeries(
+#             name='name',
+#             description='description',
+#             data=data,
+#             rate=1000.,
+#             electrodes=all_electrodes,
+#             trode_id=1
+#         )
+#
+#         self.assertEqual(tetrode_series.name, 'name')
+#         self.assertEqual(tetrode_series.description, 'description')
+#         np.testing.assert_array_equal(tetrode_series.data, data)
+#         self.assertEqual(tetrode_series.rate, 1000.)
+#         self.assertEqual(tetrode_series.starting_time, 0)
+#         self.assertEqual(tetrode_series.electrodes, all_electrodes)
+#         self.assertEqual(tetrode_series.trode_id, 1)
 
-    def setUp(self):
-        """Set up an NWB file. Necessary because TetrodeSeries requires references to electrodes."""
-        self.nwbfile = set_up_nwbfile()
 
-    def test_constructor(self):
-        """Test that the constructor for TetrodeSeries sets values as expected."""
-        all_electrodes = self.nwbfile.create_electrode_table_region(
-            region=list(range(0, 10)),
-            description='all the electrodes'
-        )
-
-        data = np.random.rand(100, 3)
-        tetrode_series = TetrodeSeries(
-            name='name',
-            description='description',
-            data=data,
-            rate=1000.,
-            electrodes=all_electrodes,
-            trode_id=1
-        )
-
-        self.assertEqual(tetrode_series.name, 'name')
-        self.assertEqual(tetrode_series.description, 'description')
-        np.testing.assert_array_equal(tetrode_series.data, data)
-        self.assertEqual(tetrode_series.rate, 1000.)
-        self.assertEqual(tetrode_series.starting_time, 0)
-        self.assertEqual(tetrode_series.electrodes, all_electrodes)
-        self.assertEqual(tetrode_series.trode_id, 1)
-
-
-class TestTetrodeSeriesRoundtrip(TestCase):
-    """Simple roundtrip test for TetrodeSeries."""
+class TestLabelSeriesRoundtrip(TestCase):
+    """Simple roundtrip test for LabelSeries."""
 
     def setUp(self):
         self.nwbfile = set_up_nwbfile()
         self.path = 'test.nwb'
 
     def tearDown(self):
-        remove_test_file(self.path)
+        pass
+        #remove_test_file(self.path)
 
     def test_roundtrip(self):
         """
-        Add a TetrodeSeries to an NWBFile, write it to file, read the file, and test that the TetrodeSeries from the
-        file matches the original TetrodeSeries.
+        Add a LabelSeries to an NWBFile, write it to file, read the file, and test that the LabelSeries from the
+        file matches the original LabelSeries.
         """
-        all_electrodes = self.nwbfile.create_electrode_table_region(
-            region=list(range(0, 10)),
-            description='all the electrodes'
+        behavior_module = self.nwbfile.create_processing_module(
+            name="behavior", description="behavior"
         )
 
-        data = np.random.rand(100, 3)
-        tetrode_series = TetrodeSeries(
-            name='TetrodeSeries',
-            description='description',
-            data=data,
-            rate=1000.,
-            electrodes=all_electrodes,
-            trode_id=1
+        pcs = np.random.rand(100, 4).astype('float64')
+        representation_series = RepresentationSeries(
+            name='pcs',
+            description='pc projections',
+            data=pcs,
+            method='iterated SVD',
+            rate=30.0,
+            starting_time=0.0
         )
 
-        self.nwbfile.add_acquisition(tetrode_series)
+        labels = np.random.rand(100, 5).astype(bool)
+        vocab = np.random.rand(5).astype(str)
+        label_series = LabelSeries(
+            name='labels',
+            description='labels',
+            data=labels,
+            vocabulary=vocab,
+            rate=30.0,
+            starting_time=0.0,
+            exclusive=False,
+            method='jim did it',
+            representation=representation_series
+        )
+
+        behavior_module.add(label_series)
+        behavior_module.add(representation_series)
 
         with NWBHDF5IO(self.path, mode='w') as io:
             io.write(self.nwbfile)
 
         with NWBHDF5IO(self.path, mode='r', load_namespaces=True) as io:
             read_nwbfile = io.read()
-            self.assertContainerEqual(tetrode_series, read_nwbfile.acquisition['TetrodeSeries'])
+            self.assertContainerEqual(behavior_module, read_nwbfile.processing['behavior'])
 
 
 class TestTetrodeSeriesRoundtripPyNWB(AcquisitionH5IOMixin, TestCase):

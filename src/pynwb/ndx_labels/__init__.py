@@ -23,4 +23,6 @@ load_namespaces(ndx_labels_specpath)
 
 # TODO: import your classes here or define your class using get_class to make
 # them accessible at the package level
-TetrodeSeries = get_class('TetrodeSeries', 'ndx-labels')
+RepresentationSeries = get_class('RepresentationSeries', 'ndx-labels')
+LabelSeries = get_class('LabelSeries', 'ndx-labels')
+

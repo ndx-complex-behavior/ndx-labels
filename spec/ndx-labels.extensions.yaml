@@ -1,8 +1,69 @@
 groups:
-- neurodata_type_def: TetrodeSeries
-  neurodata_type_inc: ElectricalSeries
-  doc: An extension of ElectricalSeries to include the tetrode ID for each time series.
+- neurodata_type_def: LabelSeries
+  neurodata_type_inc: TimeSeries
+  doc: Extends TimeSeries to capture labels encoded
   attributes:
-  - name: trode_id
-    dtype: int32
-    doc: The tetrode ID.
+  - name: exclusive
+    dtype: bool
+    doc: whether the labels are exclusive or not
+  - name: method
+    dtype: text
+    doc: a description of the method used to derive the labels
+  - name: unit
+    dtype: text
+    default_value: label
+    doc: required unit for LabelSeries, default to "label"
+    required: false
+  datasets:
+  - name: vocabulary
+    dtype: text
+    shape:
+    - null
+    doc: list of k labels for the behaviors
+    quantity: '?'
+  - name: data
+    dtype: bool
+    dims:
+    - num_frames
+    - k
+    shape:
+    - null
+    - null
+    doc: Binary array of k labels
+  links:
+  - name: representation
+    target_type: RepresentationSeries
+    doc: ref to representation series
+    quantity: '?'
+  - name: video
+    target_type: ImageSeries
+    doc: ref to video that's being labeled
+    quantity: '?'
+- neurodata_type_def: RepresentationSeries
+  neurodata_type_inc: TimeSeries
+  doc: Extends TimeSeries to include abstract representations of raw data (e.g. PCs,
+    tSNE)
+  attributes:
+  - name: method
+    dtype: text
+    doc: a description of the method used to derive the representation
+  - name: unit
+    dtype: text
+    default_value: a.u.
+    doc: required unit for RepresentationSeries, default to "a.u."
+    required: false
+  datasets:
+  - name: data
+    dtype: float64
+    dims:
+    - num_frames
+    - m
+    shape:
+    - null
+    - null
+    doc: float array of m factors
+  links:
+  - name: video
+    target_type: ImageSeries
+    doc: ref to video that's being labeled
+    quantity: '?'

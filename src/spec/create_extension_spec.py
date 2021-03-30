@@ -2,7 +2,12 @@
 
 import os.path
 
-from pynwb.spec import NWBNamespaceBuilder, export_spec, NWBGroupSpec, NWBAttributeSpec
+from pynwb.spec import NWBNamespaceBuilder, \
+    export_spec, \
+    NWBGroupSpec, \
+    NWBAttributeSpec,\
+    NWBLinkSpec,\
+    NWBDatasetSpec
 # TODO: import the following spec classes as needed
 # from pynwb.spec import NWBDatasetSpec, NWBLinkSpec, NWBDtypeSpec, NWBRefSpec
 
@@ -36,22 +41,101 @@ def main():
     # TODO: define your new data types
     # see https://pynwb.readthedocs.io/en/latest/extensions.html#extending-nwb
     # for more information
-    tetrode_series = NWBGroupSpec(
-        neurodata_type_def='TetrodeSeries',
-        neurodata_type_inc='ElectricalSeries',
-        doc=('An extension of ElectricalSeries to include the tetrode ID for '
-             'each time series.'),
+
+    representation_series = NWBGroupSpec(
+        neurodata_type_def='RepresentationSeries',
+        neurodata_type_inc='TimeSeries',
+        doc=('Extends TimeSeries to include abstract representations of raw data (e.g. PCs, tSNE)'),
         attributes=[
             NWBAttributeSpec(
-                name='trode_id',
-                doc='The tetrode ID.',
-                dtype='int32'
+                name='method',
+                doc='a description of the method used to derive the representation',
+                dtype='text'
+            ),
+            NWBAttributeSpec(
+                name='unit',
+                doc='required unit for RepresentationSeries, default to "a.u."',
+                default_value="a.u.",
+                dtype='text',
+                required=False
+            ),
+        ],
+        links=[
+            NWBLinkSpec(
+                name="video",
+                target_type="ImageSeries",
+                doc="ref to video that's being labeled",
+                quantity="?"
             )
         ],
+        datasets=[
+            NWBDatasetSpec(
+                name='data',
+                doc='float array of m factors',
+                dtype='float64',
+                dims=['num_frames', 'm'],
+                shape=(None, None),
+            ),
+        ]
+    )
+
+    label_series = NWBGroupSpec(
+        neurodata_type_def='LabelSeries',
+        neurodata_type_inc='TimeSeries',
+        doc=('Extends TimeSeries to capture labels encoded'),
+        attributes=[
+            NWBAttributeSpec(
+                name='exclusive',
+                doc='whether the labels are exclusive or not',
+                dtype='bool'
+            ),
+            NWBAttributeSpec(
+                name='method',
+                doc='a description of the method used to derive the labels',
+                dtype='text'
+            ),
+            NWBAttributeSpec(
+                name='unit',
+                doc='required unit for LabelSeries, default to "label"',
+                default_value="label",
+                dtype='text',
+                required=False
+            ),
+        ],
+        links=[
+            NWBLinkSpec(
+                name="representation",
+                target_type="RepresentationSeries",
+                doc="ref to representation series",
+                quantity="?"
+            ),
+            NWBLinkSpec(
+                name="video",
+                target_type="ImageSeries",
+                doc="ref to video that's being labeled",
+                quantity="?"
+            )
+        ],
+        datasets=[
+            NWBDatasetSpec(
+                name="vocabulary",
+                doc="list of k labels for the behaviors",
+                dtype="text",
+                shape=(None,),
+                quantity="?",
+            ),
+            NWBDatasetSpec(
+                name='data',
+                doc='Binary array of k labels',
+                dtype='bool',
+                dims=['num_frames', 'k'],
+                shape=(None, None),
+            ),
+        ]
     )
 
     # TODO: add all of your new data types to this list
-    new_data_types = [tetrode_series]
+    new_data_types = [label_series, representation_series]
 
     # export the spec to yaml files in the spec folder
     output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'spec'))
