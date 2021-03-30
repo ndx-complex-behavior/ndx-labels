@@ -1,0 +1,23 @@
+namespaces:
+- author:
+  - Akshay Jaggi
+  - Kanishk Jain
+  - Jim Robinson-Bohnslav
+  contact:
+  - akshay.x.jaggi@gmail.com
+  doc: labels for behavior or neural data
+  name: ndx-labels
+  schema:
+  - namespace: core
+    neurodata_types:
+    - ElectricalSeries
+    - TimeSeries
+    - NWBDataInterface
+    - NWBContainer
+  - namespace: hdmf-common
+    neurodata_types:
+    - DynamicTableRegion
+    - VectorData
+    - Data
+  - source: ndx-labels.extensions.yaml
+  version: 0.1.0
