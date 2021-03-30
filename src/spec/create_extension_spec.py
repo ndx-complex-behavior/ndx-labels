@@ -71,9 +71,9 @@ def main():
         datasets=[
             NWBDatasetSpec(
                 name='data',
-                doc='float array of m factors',
+                doc='float array of the value of m factors for n time steps',
                 dtype='float64',
-                dims=['num_frames', 'm'],
+                dims=['num_frames', 'num_factors'],
                 shape=(None, None),
             ),
         ]
@@ -91,7 +91,7 @@ def main():
             ),
             NWBAttributeSpec(
                 name='method',
-                doc='a description of the method used to derive the labels',
+                doc='a description of the method used to derive the labels (e.g. DeepEthogram v0.1.0)',
                 dtype='text'
             ),
             NWBAttributeSpec(
@@ -118,19 +118,28 @@ def main():
         ],
         datasets=[
             NWBDatasetSpec(
+                name='data',
+                doc='Binary array of k labels for all n time steps',
+                dtype='bool',
+                dims=['num_frames', 'num_labels'],
+                shape=(None, None),
+            ),
+            NWBDatasetSpec(
+                name='scores',
+                doc='Float array of the probabilities of each of the k labels for all n time steps',
+                dtype='float64',
+                dims=['num_frames', 'num_labels'],
+                shape=(None, None),
+                quantity="?"
+            ),
+            NWBDatasetSpec(
                 name="vocabulary",
                 doc="list of k labels for the behaviors",
                 dtype="text",
+                dims=['num_labels'],
                 shape=(None,),
-                quantity="?",
-            ),
-            NWBDatasetSpec(
-                name='data',
-                doc='Binary array of k labels',
-                dtype='bool',
-                dims=['num_frames', 'k'],
-                shape=(None, None),
-            ),
+                quantity="?"
+            )
         ]
     )
 

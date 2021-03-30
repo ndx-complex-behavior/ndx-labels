@@ -87,11 +87,13 @@ class TestLabelSeriesRoundtrip(TestCase):
         )
 
         labels = np.random.rand(100, 5).astype(bool)
+        scores = np.random.rand(100, 5)
         vocab = np.random.rand(5).astype(str)
         label_series = LabelSeries(
             name='labels',
             description='labels',
             data=labels,
+            scores=scores,
             vocabulary=vocab,
             rate=30.0,
             starting_time=0.0,

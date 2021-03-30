@@ -8,28 +8,41 @@ groups:
     doc: whether the labels are exclusive or not
   - name: method
     dtype: text
-    doc: a description of the method used to derive the labels
+    doc: a description of the method used to derive the labels (e.g. DeepEthogram
+      v0.1.0)
   - name: unit
     dtype: text
     default_value: label
     doc: required unit for LabelSeries, default to "label"
     required: false
   datasets:
-  - name: vocabulary
-    dtype: text
-    shape:
-    - null
-    doc: list of k labels for the behaviors
-    quantity: '?'
   - name: data
     dtype: bool
     dims:
     - num_frames
-    - k
+    - num_labels
     shape:
     - null
     - null
-    doc: Binary array of k labels
+    doc: Binary array of k labels for all n time steps
+  - name: scores
+    dtype: float64
+    dims:
+    - num_frames
+    - num_labels
+    shape:
+    - null
+    - null
+    doc: Float array of the probabilities of each of the k labels for all n time steps
+    quantity: '?'
+  - name: vocabulary
+    dtype: text
+    dims:
+    - num_labels
+    shape:
+    - null
+    doc: list of k labels for the behaviors
+    quantity: '?'
   links:
   - name: representation
     target_type: RepresentationSeries
@@ -57,11 +70,11 @@ groups:
     dtype: float64
     dims:
     - num_frames
-    - m
+    - num_factors
     shape:
     - null
     - null
-    doc: float array of m factors
+    doc: float array of the value of m factors for n time steps
   links:
   - name: video
     target_type: ImageSeries
