@@ -17,7 +17,7 @@ groups:
     required: false
   datasets:
   - name: data
-    dtype: bool
+    dtype: int32
     dims:
     - num_frames
     - num_labels

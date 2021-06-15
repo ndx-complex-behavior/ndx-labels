@@ -31,6 +31,7 @@ def main():
     # type and its parent type and so on. this will be addressed in a future
     # release of HDMF.
     ns_builder.include_type('ElectricalSeries', namespace='core')
+    ns_builder.include_type('ImageSeries', namespace='core')
     ns_builder.include_type('TimeSeries', namespace='core')
     ns_builder.include_type('NWBDataInterface', namespace='core')
     ns_builder.include_type('NWBContainer', namespace='core')
@@ -120,7 +121,7 @@ def main():
             NWBDatasetSpec(
                 name='data',
                 doc='Binary array of k labels for all n time steps',
-                dtype='bool',
+                dtype='int32',
                 dims=['num_frames', 'num_labels'],
                 shape=(None, None),
             ),
